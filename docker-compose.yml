@@ -1,0 +1,55 @@
+services:
+  zabbix-db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: zabbix
+    volumes:
+      - './zabbix/db_data:/var/lib/postgresql/data'
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:latest
+    restart: always
+    ports:
+      - '10051:10051'
+    environment:
+      DB_SERVER_HOST: zabbix-db
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: zabbix
+      http_proxy: "${PROXY_URL}"
+      https_proxy: "${PROXY_URL}"
+      no_proxy: "localhost,127.0.0.1,172.20.0.0/16,zabbix-db,zabbix-web"
+      NO_PROXY: "localhost,127.0.0.1,172.20.0.0/16,zabbix-db,zabbix-web"
+    depends_on:
+      - zabbix-db
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:latest
+    restart: always
+    ports:
+      - '8081:8080'
+    environment:
+      DB_SERVER_HOST: zabbix-db
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: zabbix
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: "Asia/Dhaka"
+    depends_on:
+      - zabbix-server
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:latest
+    container_name: zabbix-agent-1
+    restart: always
+    privileged: true
+    user: root
+    network_mode: "host"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run
+      - ./zabbix_agent_conf/zabbix_agentd.conf:/etc/zabbix/custom_zabbix_agentd.conf:ro
+    command: zabbix_agentd -f -c /etc/zabbix/custom_zabbix_agentd.conf
