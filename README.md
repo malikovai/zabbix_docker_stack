@@ -14,18 +14,18 @@ The `docker-compose.yml` includes the following core services:
 
 1. Clone the repository into a working directory on the server:
    ```bash
-   git clone [https://github.com/malikovai/zabbix_docker_stack.git](https://github.com/malikovai/zabbix_docker_stack.git) .```
+   git clone [https://github.com/malikovai/zabbix_docker_stack.git](https://github.com/malikovai/zabbix_docker_stack.git) .
 
 2. Create the environment configuration file .env based on the provided template:
    ```bash
-   cp .env.example .env```
+   cp .env.example .env
 3. Edit .env to specify secure credentials and required environment variables (e.g., database passwords and proxy settings).
 
 ## Running the Stack
 
 Deploy and start the containers in the background:
    ```bash
-   docker compose up -d```
+   docker compose up -d
 
 ## Maintenance and Backups
 
@@ -33,7 +33,7 @@ All stack data is persistent and isolated from Docker configuration files via lo
    ```bash
    docker compose down
    # Perform backup of local data folders
-   docker compose up -d```
+   docker compose up -d
 
 ## Security Posture
 
